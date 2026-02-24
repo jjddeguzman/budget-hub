@@ -2,13 +2,14 @@ import { Component, signal, computed, ChangeDetectionStrategy, Signal } from '@a
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ITransaction, IFormattedTransaction } from '../models/transaction.model';
-import { MOCK_TRANSACTIONS } from '../mocks/transaction.mock';
+import { MOCK_TRANSACTIONS, MOCK_TRANSACTION_CATEGORIES } from '../mocks/transaction.mock';
 import { TransactionsTableComponent } from '../components/transactions-table/transactions-table.component';
+import { TransactionsFiltersComponent } from '../components/transactions-filters/transactions-filters.component';
 
 @Component({
   selector: 'app-transactions',
   standalone: true,
-  imports: [CommonModule, FormsModule, TransactionsTableComponent],
+  imports: [CommonModule, FormsModule, TransactionsTableComponent, TransactionsFiltersComponent],
   template: `
     <div class="space-y-6">
       <!-- Page Header -->
@@ -25,46 +26,7 @@ import { TransactionsTableComponent } from '../components/transactions-table/tra
       </div>
 
       <!-- Filters -->
-      <div class="bg-white rounded-lg shadow-md p-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
-            <input
-              type="text"
-              placeholder="Search transactions..."
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option>All Categories</option>
-              <option>Food</option>
-              <option>Transport</option>
-              <option>Utilities</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
-            <select
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            >
-              <option>All Types</option>
-              <option>Income</option>
-              <option>Expense</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Date Range</label>
-            <input
-              type="date"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500"
-            />
-          </div>
-        </div>
-      </div>
+      <app-transactions-filters [categories]="categories" />
 
       <!-- Transactions Table -->
       <app-transactions-table [transactions]="formattedTransactions()" />
@@ -76,6 +38,11 @@ export class TransactionsComponent {
   private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
 
   transactions = this.transactions$;
+
+  /**
+   * Available transaction categories for filtering
+   */
+  categories = MOCK_TRANSACTION_CATEGORIES;
 
   /**
    * Formats transactions for display with amount signs and currency symbol
