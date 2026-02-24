@@ -1,6 +1,8 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ITransaction, IFormattedTransaction } from '../models/transaction.model';
+import { MOCK_TRANSACTIONS } from '../mocks/transaction.mock';
 
 @Component({
   selector: 'app-transactions',
@@ -76,30 +78,52 @@ import { FormsModule } from '@angular/forms';
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200">
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-sm text-gray-900">Grocery Store</td>
-              <td class="px-6 py-4 text-sm text-gray-600">Food & Dining</td>
-              <td class="px-6 py-4 text-sm text-gray-600">Feb 24, 2025</td>
-              <td class="px-6 py-4 text-sm text-right text-gray-900 font-medium">-$120.50</td>
-              <td class="px-6 py-4 text-sm text-center">
-                <button class="text-teal-600 hover:text-teal-700 font-medium">Edit</button>
-              </td>
-            </tr>
-            <tr class="hover:bg-gray-50 transition-colors">
-              <td class="px-6 py-4 text-sm text-gray-900">Office Salary</td>
-              <td class="px-6 py-4 text-sm text-gray-600">Income</td>
-              <td class="px-6 py-4 text-sm text-gray-600">Feb 23, 2025</td>
-              <td class="px-6 py-4 text-sm text-right text-green-600 font-medium">+$3,200.00</td>
-              <td class="px-6 py-4 text-sm text-center">
-                <button class="text-teal-600 hover:text-teal-700 font-medium">Edit</button>
-              </td>
-            </tr>
+            @for (item of formattedTransactions(); track item.id) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 text-sm text-gray-900">{{ item.description }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">{{ item.category }}</td>
+                <td class="px-6 py-4 text-sm text-gray-600">
+                  {{ item.date | date: 'MMM dd, yyyy' }}
+                </td>
+                <td
+                  [ngClass]="{
+                    'text-green-600': item.type === 'income',
+                    'text-gray-900': item.type === 'expense',
+                  }"
+                  class="px-6 py-4 text-sm text-right font-medium"
+                >
+                  {{ item.formattedAmount }}
+                </td>
+                <td class="px-6 py-4 text-sm text-center">
+                  <button class="text-teal-600 hover:text-teal-700 font-medium">Edit</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500 text-sm">
+                  No transactions found
+                </td>
+              </tr>
+            }
           </tbody>
         </table>
-        <div class="px-6 py-8 text-center text-gray-500 text-sm">No transactions found</div>
       </div>
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class TransactionsComponent {}
+export class TransactionsComponent {
+  private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
+
+  transactions = this.transactions$;
+
+  /**
+   * Formats transactions for display with amount signs and currency symbol
+   */
+  formattedTransactions = computed<IFormattedTransaction[]>(() =>
+    this.transactions$().map((tx) => ({
+      ...tx,
+      formattedAmount: `${tx.type === 'income' ? '+' : '-'}$${tx.amount}`,
+    })),
+  );
+}

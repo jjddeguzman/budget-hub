@@ -8,6 +8,10 @@ export interface ITransaction {
   notes?: string;
 }
 
+export interface IFormattedTransaction extends ITransaction {
+  formattedAmount: string;
+}
+
 export interface ITransactionCategory {
   id: string;
   name: string;
