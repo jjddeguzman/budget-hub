@@ -1,7 +1,18 @@
-import { Component, signal, computed, ChangeDetectionStrategy, Signal } from '@angular/core';
+import {
+  Component,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+  Signal,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ITransaction, IFormattedTransaction } from '../models/transaction.model';
+import {
+  ITransaction,
+  IFormattedTransaction,
+  ITransactionCategory,
+} from '../models/transaction.model';
 import { MOCK_TRANSACTIONS, MOCK_TRANSACTION_CATEGORIES } from '../mocks/transaction.mock';
 import { TransactionsTableComponent } from '../components/transactions-table/transactions-table.component';
 import { TransactionsFiltersComponent } from '../components/transactions-filters/transactions-filters.component';
@@ -28,7 +39,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
       />
 
       <!-- Filters -->
-      <app-transactions-filters [categories]="categories" />
+      <app-transactions-filters [categories]="categories()" />
 
       <!-- Transactions Table -->
       <app-transactions-table [transactions]="formattedTransactions()" />
@@ -38,8 +49,11 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
 })
 export class TransactionsComponent {
   private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
-  categories = MOCK_TRANSACTION_CATEGORIES;
+  private categories$: Signal<ITransactionCategory[]> = signal<ITransactionCategory[]>(
+    MOCK_TRANSACTION_CATEGORIES,
+  );
   transactions = this.transactions$;
+  categories = this.categories$;
 
   pageTitle = (): string => 'Transactions';
 
