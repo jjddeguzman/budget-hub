@@ -1,13 +1,6 @@
-import {
-  Component,
-  signal,
-  computed,
-  ChangeDetectionStrategy,
-  Signal,
-  OnInit,
-} from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup } from '@angular/forms';
 import {
   ITransaction,
   IFormattedTransaction,
@@ -23,7 +16,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
+    ReactiveFormsModule,
     TransactionsTableComponent,
     TransactionsFiltersComponent,
     PageHeaderComponent,
@@ -39,7 +32,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
       />
 
       <!-- Filters -->
-      <app-transactions-filters [categories]="categories()" />
+      <app-transactions-filters [categories]="categories()" [filtersForm]="filtersForm" />
 
       <!-- Transactions Table -->
       <app-transactions-table [transactions]="formattedTransactions()" />
@@ -52,14 +45,35 @@ export class TransactionsComponent {
   private categories$: Signal<ITransactionCategory[]> = signal<ITransactionCategory[]>(
     MOCK_TRANSACTION_CATEGORIES,
   );
-  transactions = this.transactions$;
-  categories = this.categories$;
+  transactions: Signal<ITransaction[]> = this.transactions$;
+  categories: Signal<ITransactionCategory[]> = this.categories$;
+
+  // Filter form group
+  filtersForm: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.filtersForm = this.initFiltersForm();
+  }
+
+  /**
+   * Initialize filter form group
+   */
+  private initFiltersForm(): FormGroup {
+    return this.fb.group({
+      search: [''],
+      category: ['All Categories'],
+      type: ['All Types'],
+      dateRange: [''],
+    });
+  }
 
   pageTitle = (): string => 'Transactions';
 
   pageDescription = (): string => 'Track and manage all your financial transactions.';
 
   pageButtonLabel = (): string => '+ Add Transaction';
+
+  onAddTransaction = (): void => console.log('Add Transaction button clicked');
 
   /**
    * Formats transactions for display with amount signs and currency symbol
@@ -70,6 +84,4 @@ export class TransactionsComponent {
       formattedAmount: `${tx.type === 'income' ? '+' : '-'}$${tx.amount}`,
     })),
   );
-
-  onAddTransaction = (): void => console.log('Add Transaction button clicked');
 }
