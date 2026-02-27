@@ -37,7 +37,7 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransactionsComponent {
-  private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>([]);
+  private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
   categories = MOCK_TRANSACTION_CATEGORIES;
   transactions = this.transactions$;
 
