@@ -32,21 +32,31 @@ import { PageHeaderComponent } from '../../../shared/components/page-header.comp
       />
 
       <!-- Filters -->
-      <app-transactions-filters [categories]="categories()" [filtersForm]="filtersForm" />
+      <app-transactions-filters [categories]="categories$()" [filtersForm]="filtersForm" />
 
       <!-- Transactions Table -->
-      <app-transactions-table [transactions]="formattedTransactions()" />
+      <app-transactions-table [transactions]="formattedTransactions$()" />
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TransactionsComponent {
-  private transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
-  private categories$: Signal<ITransactionCategory[]> = signal<ITransactionCategory[]>(
+  public transactions$: Signal<ITransaction[]> = signal<ITransaction[]>(MOCK_TRANSACTIONS);
+  public categories$: Signal<ITransactionCategory[]> = signal<ITransactionCategory[]>(
     MOCK_TRANSACTION_CATEGORIES,
   );
-  transactions: Signal<ITransaction[]> = this.transactions$;
-  categories: Signal<ITransactionCategory[]> = this.categories$;
+
+  /**
+   * Formats transactions for display with amount signs and currency symbol
+   */
+  public formattedTransactions$: Signal<IFormattedTransaction[]> = computed<
+    IFormattedTransaction[]
+  >(() =>
+    this.transactions$().map((tx) => ({
+      ...tx,
+      formattedAmount: `${tx.type === 'income' ? '+' : '-'}$${tx.amount}`,
+    })),
+  );
 
   // Filter form group
   filtersForm: FormGroup;
@@ -74,14 +84,4 @@ export class TransactionsComponent {
   pageButtonLabel = (): string => '+ Add Transaction';
 
   onAddTransaction = (): void => console.log('Add Transaction button clicked');
-
-  /**
-   * Formats transactions for display with amount signs and currency symbol
-   */
-  formattedTransactions: Signal<IFormattedTransaction[]> = computed<IFormattedTransaction[]>(() =>
-    this.transactions$().map((tx) => ({
-      ...tx,
-      formattedAmount: `${tx.type === 'income' ? '+' : '-'}$${tx.amount}`,
-    })),
-  );
 }
