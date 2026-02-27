@@ -17,3 +17,11 @@ export interface ITransactionCategory {
   name: string;
   icon?: string;
 }
+
+export interface IAddTransaction {
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+  category: string;
+  date: Date;
+}
